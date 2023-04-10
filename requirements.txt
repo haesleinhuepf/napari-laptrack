@@ -3,6 +3,5 @@ numpy
 napari-tools-menu
 napari-time-slicer
 laptrack
-napari_segment_blobs_and_things_with_membranes
 napari_skimage_regionprops
 pandas
