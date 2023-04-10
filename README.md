@@ -1,12 +1,12 @@
-# napari_laptrack
+# napari-laptrack
 
-[![License](https://img.shields.io/pypi/l/napari_laptrack.svg?color=green)](https://github.com/haesleinhuepf/napari_laptrack/raw/master/LICENSE)
-[![PyPI](https://img.shields.io/pypi/v/napari_laptrack.svg?color=green)](https://pypi.org/project/napari_laptrack)
-[![Python Version](https://img.shields.io/pypi/pyversions/napari_laptrack.svg?color=green)](https://python.org)
-[![tests](https://github.com/haesleinhuepf/napari_laptrack/workflows/tests/badge.svg)](https://github.com/haesleinhuepf/napari_laptrack/actions)
-[![codecov](https://codecov.io/gh/haesleinhuepf/napari_laptrack/branch/master/graph/badge.svg)](https://codecov.io/gh/haesleinhuepf/napari_laptrack)
-[![Development Status](https://img.shields.io/pypi/status/napari_laptrack.svg)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha)
-[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari_laptrack)](https://napari-hub.org/plugins/napari_laptrack)
+[![License](https://img.shields.io/pypi/l/napari-laptrack.svg?color=green)](https://github.com/haesleinhuepf/napari-laptrack/raw/master/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/napari-laptrack.svg?color=green)](https://pypi.org/project/napari-laptrack)
+[![Python Version](https://img.shields.io/pypi/pyversions/napari-laptrack.svg?color=green)](https://python.org)
+[![tests](https://github.com/haesleinhuepf/napari-laptrack/workflows/tests/badge.svg)](https://github.com/haesleinhuepf/napari-laptrack/actions)
+[![codecov](https://codecov.io/gh/haesleinhuepf/napari-laptrack/branch/master/graph/badge.svg)](https://codecov.io/gh/haesleinhuepf/napari-laptrack)
+[![Development Status](https://img.shields.io/pypi/status/napari-laptrack.svg)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha)
+[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-laptrack)](https://napari-hub.org/plugins/napari-laptrack)
 
 Tracking particles in Napari, using the [LabTrack](https://laptrack.readthedocs.io/en/latest/usage.html) library.
 This plugin is young and has just limited functionality. Contributions are welcome.
@@ -102,7 +102,7 @@ the coverage at least stays the same before you submit a pull request.
 ## License
 
 Distributed under the terms of the [BSD-3] license,
-"napari_laptrack" is free and open source software
+"napari-laptrack" is free and open source software
 
 ## Issues
 
@@ -118,7 +118,7 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 [Apache Software License 2.0]: http://www.apache.org/licenses/LICENSE-2.0
 [Mozilla Public License 2.0]: https://www.mozilla.org/media/MPL/2.0/index.txt
 [cookiecutter-napari-plugin]: https://github.com/haesleinhuepf/cookiecutter-napari-assistant-plugin
-[file an issue]: https://github.com/haesleinhuepf/napari_laptrack/issues
+[file an issue]: https://github.com/haesleinhuepf/napari-laptrack/issues
 [napari]: https://github.com/napari/napari
 [tox]: https://tox.readthedocs.io/en/latest/
 [pip]: https://pypi.org/project/pip/
