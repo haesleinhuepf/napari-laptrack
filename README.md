@@ -11,6 +11,18 @@
 Tracking particles in Napari, using the [LabTrack](https://laptrack.readthedocs.io/en/latest/usage.html) library.
 This plugin is young and has just limited functionality. Contributions are welcome.
 
+
+## Installation instructions
+
+It is recommended to use this napari-plugin together with [devbio-napari](https://github.com/haesleinhuepf/devbio-napari).
+Install both using mamba-forge ([download here](https://github.com/conda-forge/miniforge#mambaforge)) by running these commands line-by line from the terminal:
+
+```
+mamba create --name napari-laptrack-env -c conda-forge python=3.9 devbio-napari
+mamba activate napari-laptrack-env
+pip install napari-laptrack
+```
+
 ## Usage
 
 The starting point for napari-laptrack is a 4D image layer and a corresponding labels layer. 
@@ -29,7 +41,7 @@ You can do this using the menu `Tools > Utilities > Convert 3D stack to 2d+t tim
 It will create a new layer named `2D+t <original name>`. After this conversion, you can delete the original image layer, which is recommended to avoid confusion due to too many layers. 
 For deleting the original layer, select it and hit the trash-bin button.
 
-![img.png](docs/convert2d_t.png)
+![img.png](https://github.com/haesleinhuepf/napari-laptrack/raw/main/docs/convert2d_t.png)
 
 ### Object segmentation
 
@@ -38,7 +50,7 @@ In principle all algorithms are compatible if they produce a 3D+t label image as
 In this tutorial, we use the [Voronoi-Otsu-Labeling algorithm](https://haesleinhuepf.github.io/BioImageAnalysisNotebooks/20_image_segmentation/11_voronoi_otsu_labeling.html) implemented using [clesperanto](https://github.com/clEsperanto/pyclesperanto_prototype). 
 It is available from the menu `Tools > Segmentation / labeling`.
 
-![img.png](docs/labeling_vol.png)
+![img.png](https://github.com/haesleinhuepf/napari-laptrack/raw/main/docs/labeling_vol.png)
 
 ### Tracking labeled objects
 
@@ -50,13 +62,13 @@ The table also contain colums `label`, `frame` and `track_id`.
 All labels which belong to the same track, but to different frames, have the same `track_id`. 
 In some cases, also layers named `Stack 4D <original layer name>` are created. This is done to store the labels which were analysed. These layers are technically duplicates of the original layers which were computed on-the-fly.
 
-![img.png](docs/result.png)
+![img.png](https://github.com/haesleinhuepf/napari-laptrack/raw/main/docs/result.png)
 
 ### The Tracks layer
 
 The tracks layer visualizes the travel path of the labels' centroids over time. [Read more about the Tracks layer in the Napari documentation](https://napari.org/stable/howtos/layers/tracks.html).
 
-![img.png](docs/tracks_layer.png)
+![img.png](https://github.com/haesleinhuepf/napari-laptrack/raw/main/docs/tracks_layer.png)
 
 ### The Track-ID image
 One result of the plugin is a Track-ID image. This is a label image where objects have the same label / color over time. 
@@ -64,9 +76,9 @@ This image is not suited for many quantitative label-measurment methods because 
 
 As example, two subsequent frames are shown:
 
-![img.png](docs/track_id_image_0.png)
+![img.png](https://github.com/haesleinhuepf/napari-laptrack/raw/main/docs/track_id_image_0.png)
 
-![img.png](docs/track_id_image_1.png)
+![img.png](https://github.com/haesleinhuepf/napari-laptrack/raw/main/docs/track_id_image_1.png)
 
 ## Similar and related plugins
 
@@ -86,16 +98,6 @@ There are other napari-plugins and python packages which allow tracking particle
 Contributions are very welcome. Tests can be run with [tox], please ensure
 the coverage at least stays the same before you submit a pull request.
 
-## Installation instructions for developers
-
-It is recommended to use this napari-plugin together with [devbio-napari](https://github.com/haesleinhuepf/devbio-napari).
-Install both using mamba-forge ([download here](https://github.com/conda-forge/miniforge#mambaforge)) by running these commands line-by line from the terminal:
-
-```
-mamba create --name napari-laptrack-env -c conda-forge python=3.9 devbio-napari
-mamba activate napari-laptrack-env
-pip install napari-laptrack
-```
 
 ## License
 
