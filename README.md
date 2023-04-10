@@ -8,7 +8,8 @@
 [![Development Status](https://img.shields.io/pypi/status/napari_laptrack.svg)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari_laptrack)](https://napari-hub.org/plugins/napari_laptrack)
 
-Tracking particles in Napari, using the LabTrack library
+Tracking particles in Napari, using the [LabTrack](https://laptrack.readthedocs.io/en/latest/usage.html) library.
+This plugin is young and has just limited functionality. Contributions are welcome.
 
 ## Usage
 
@@ -69,6 +70,15 @@ As example, two subsequent frames are shown:
 
 ## Similar and related plugins
 
+There are other napari-plugins and python packages which allow tracking particles, visualizing tracking data and quantiative measurements of tracks:
+* [arboretum](https://github.com/lowe-lab-ucl/arboretum)
+* [btrack](https://github.com/quantumjot/btrack)
+* [ultrack](https://github.com/royerlab/ultrack)
+* [napari-stracking](https://www.napari-hub.org/plugins/napari-stracking)
+* [napari-tracks-reader](https://www.napari-hub.org/plugins/napari-tracks-reader)
+* [vollseg-napari-trackmate](https://www.napari-hub.org/plugins/vollseg-napari-trackmate)
+* [palmari](https://www.napari-hub.org/plugins/palmari)
+* [napari-amdtrk](https://www.napari-hub.org/plugins/napari-amdtrk)
 
 
 ## Contributing
