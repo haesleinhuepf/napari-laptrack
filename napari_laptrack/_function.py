@@ -71,8 +71,11 @@ def track_labels_centroid_based(image_layer: "napari.layers.Image", labels_layer
 
     # show result as tracks
     split_merge_graph={
-        row["child_track_id"]: row["parent_track_id"] for _, row in split_df.iterrows()
+        row["child_track_id"]: [row["parent_track_id"]] for _, row in split_df.iterrows()
     }
+    split_merge_graph.update({
+        c_id: grp["parent_track_id"].to_list() for c_id, grp in merge_df.groupby("child_track_id")
+    })
     viewer.add_tracks(track_df[["track_id", "frame", "centroid-2", "centroid-0", "centroid-1"]], 
                       graph=split_merge_graph, tail_length=50)
     # show result as track-id-label image
