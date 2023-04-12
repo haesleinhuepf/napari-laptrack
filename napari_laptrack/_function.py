@@ -63,14 +63,18 @@ def track_labels_centroid_based(image_layer: "napari.layers.Image", labels_layer
 
     # LAP-based tracking
     lt = LapTrack(track_cost_cutoff=5 ** 2)
-    track_df, _, _ = lt.predict_dataframe(spots_df, ["centroid-0", "centroid-1", "centroid-2"], only_coordinate_cols=False)
+    track_df, split_df, merge_df = lt.predict_dataframe(spots_df, ["centroid-0", "centroid-1", "centroid-2"], only_coordinate_cols=False)
     track_df = track_df.reset_index()
 
     # store results
     labels_layer_4d.features = track_df
 
     # show result as tracks
-    viewer.add_tracks(track_df[["track_id", "frame", "centroid-2", "centroid-0", "centroid-1"]], tail_length=50)
+    split_merge_graph={
+        row["child_track_id"]: row["parent_track_id"] for _, row in split_df.iterrows()
+    }
+    viewer.add_tracks(track_df[["track_id", "frame", "centroid-2", "centroid-0", "centroid-1"]], 
+                      graph=split_merge_graph, tail_length=50)
     # show result as track-id-label image
     track_id_image = nsr.map_measurements_on_labels(labels_layer_4d, column = "track_id");
     track_id_image = track_id_image.astype(np.uint32)
