@@ -19,7 +19,11 @@ Install both using mamba-forge ([download here](https://github.com/conda-forge/m
 
 ```
 mamba create --name napari-laptrack-env -c conda-forge python=3.9 devbio-napari
+```
+```
 mamba activate napari-laptrack-env
+```
+```
 pip install napari-laptrack
 ```
 
