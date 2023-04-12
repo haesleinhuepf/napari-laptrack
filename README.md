@@ -8,7 +8,7 @@
 [![Development Status](https://img.shields.io/pypi/status/napari-laptrack.svg)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-laptrack)](https://napari-hub.org/plugins/napari-laptrack)
 
-Tracking particles in Napari, using the [LabTrack](https://laptrack.readthedocs.io/en/latest/usage.html) library.
+Tracking particles in Napari, using the [LapTrack](https://laptrack.readthedocs.io/en/latest/usage.html) library.
 This plugin is young and has just limited functionality. Contributions are welcome.
 
 
