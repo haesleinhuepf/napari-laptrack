@@ -9,7 +9,7 @@ from typing import Literal, Annotated
 
 @napari_hook_implementation
 def napari_experimental_provide_function():
-    return [track_labels_centroid_based]
+    return [track_labels_centroid_based, track_labels_overlap_based]
 
 
 @register_function(menu="Tracking > Track labeled objects (centroid-based, LapTrack)")
@@ -170,28 +170,36 @@ def track_labels_overlap_based(
                 overlap_results = pool.map(calculate_overlap_partial, inputs, chunksize=int(len(inputs) / mp.cpu_count()))
             
             overlap_records += [dict(zip(records_keys, overlap_result)) for overlap_result in overlap_results]
-            overlap_df = pd.DataFrame.from_records(overlap_records)
-            overlap_df = overlap_df[overlap_df['overlap'] > 0]
-            overlap_df = overlap_df.set_index(['frame', 'label1', 'label2']).copy()
+            print(f'Processed overlap of frames {f} and {f + 1}')
+
+        overlap_df = pd.DataFrame.from_records(overlap_records)
+        overlap_df = overlap_df[overlap_df['overlap'] > 0]
+        overlap_df = overlap_df.set_index(['frame', 'label1', 'label2']).copy()
 
     # Load/compute centroid positions of labels in each frame and store results in a dataframe
-    dfs = []
-    for frame in np.arange(labels.shape[0]):
-        df = pd.DataFrame(
-            nsr.regionprops_table(image[frame], labels[frame], position=True)
+    if (
+        labels_layer_4d.features is None
+        or "centroid-0" not in labels_layer_4d.features.keys()
+    ):
+        print(
+            "No centroids found in measured features; determining centroid using napari-skimage-regionprops..."
         )
-        df["frame"] = frame
-        dfs.append(df)
-    coordinate_df = pd.concat(dfs)
+        measurements = nsr.regionprops_table_all_frames(image, labels, position=True)
+        coordinate_df = pd.DataFrame(measurements)
+        if "centroid-2" not in coordinate_df.keys():
+            coordinate_df["centroid-2"] = 0
+    else:
+        coordinate_df = labels_layer_4d.features
 
     # Instantiate LapTrack object
     if metric == "overlap_metric":
+        overlap_metric_partial = partial(overlap_metric, overlap_df=overlap_df)
         lt = LapTrack(
-            track_dist_metric=overlap_metric,
+            track_dist_metric=overlap_metric_partial,
             track_cost_cutoff=track_cost_cutoff,
-            gap_closing_dist_metric=overlap_metric,
+            gap_closing_dist_metric=overlap_metric_partial,
             gap_closing_max_frame_count=gap_closing_max_frame_count,
-            splitting_dist_metric=overlap_metric,
+            splitting_dist_metric=overlap_metric_partial,
             splitting_cost_cutoff=splitting_cost_cutoff,
         )
     
@@ -208,12 +216,28 @@ def track_labels_overlap_based(
             frame = int(row["frame"])
             label_obj = int(row["label"])
             new_labels[frame][labels[frame] == label_obj] = tree_id + 1
+    viewer.add_labels(new_labels, name=labels_name + "_tracked")
+
+    viewer.add_tracks(
+    track_df[["track_id", "frame", "centroid-2", "centroid-0", "centroid-1"]].values,
+    graph={
+        row["child_track_id"]: row["parent_track_id"] for _, row in split_df.iterrows()
+    },
+    tail_length=1,
+    )
+
+    # show result as track-id-label image
+    #track_id_image = nsr.map_measurements_on_labels(labels_layer_4d, column="track_id")
+    #track_id_image = track_id_image.astype(np.uint32)
+    #viewer.add_labels(track_id_image)
+    # show result as table
+    #nsr.add_table(labels_layer_4d, viewer)
 
 def calculate_overlap(label_overlap, label1, label2, frame):
     overlap, iou, ratio1, ratio2 = label_overlap.calc_overlap(frame, label1, frame + 1, label2)
     return np.asarray([frame, label1, label2, overlap, iou, ratio1, ratio2])
 
-def overlap_metric(c1, c2):
+def overlap_metric(c1, c2, overlap_df):
     (frame1, label1), (frame2, label2) = c1, c2
     if frame1 == frame2 + 1:
         tmp = (frame1, label1)
