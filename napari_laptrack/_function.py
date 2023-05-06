@@ -129,8 +129,8 @@ def _cell_segmentation():
 
     data, label = cell_segmentation()
     return [
-        (data, {"name": "C2C12 Cells (2D)"}, "image"),
-        (label, {"name": "C2C12 Cells (2D) Labels"}, "labels"),
+        (data, {"name": "Cell Segmentation (2D)"}, "image"),
+        (label, {"name": "Cell Segmentation (2D) Labels"}, "labels"),
     ]
 
 
@@ -143,16 +143,26 @@ def _bright_brownian_particles():
 def _mouse_epidermis():
     from laptrack.datasets import mouse_epidermis
 
-    [(mouse_epidermis(), {"name": "Mouse Epidermis (2D)"}, "labels")]
+    return [(mouse_epidermis(), {"name": "Mouse Epidermis (2D)"}, "labels")]
 
 
 _DATA = {
-    "Simple Tracks (2D)": _simple_tracks,
-    "Bright Brownian Particles (2D)": _bright_brownian_particles,
-    "C2C12 Cells (2D)": _cell_segmentation,
-    "Mouse Epidermis (2D)": _mouse_epidermis,
+    "simple_tracks": {"data": _simple_tracks, "display_name": "Simple Tracks (2D)"},
+    "bright_brownian_particles": {
+        "data": _bright_brownian_particles,
+        "display_name": "Bright Brownian Particles (2D)",
+    },
+    "cell_segmentation": {
+        "data": _cell_segmentation,
+        "display_name": "Cell Segmentation (2D)",
+    },
+    "mouse_epidermis": {
+        "data": _mouse_epidermis,
+        "display_name": "Mouse Epidermis (2D)",
+    },
 }
 
+# May be useful in npe2 migration later
 # globals().update({k: v['data'] for k, v in _DATA.items()})
 
 
