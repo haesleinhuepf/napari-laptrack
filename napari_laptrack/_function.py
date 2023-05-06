@@ -77,3 +77,57 @@ def track_labels_centroid_based(image_layer: "napari.layers.Image", labels_layer
     viewer.add_labels(track_id_image)
     # show result as table
     nsr.add_table(labels_layer_4d, viewer)
+
+
+def _simple_tracks():
+    from laptrack.datasets import simple_tracks
+    import numpy as np
+    data = simple_tracks()[["frame","position_y","position_x"]].values
+
+    yrange = (150,250)
+    xrange = (150,250)
+
+    track_image = np.zeros((
+        int(data[:,0].max())+1,
+        yrange[1] - yrange[0],
+        xrange[1] - xrange[0],
+    ))
+    yy, xx = np.meshgrid(
+        np.arange(track_image.shape[1]),
+        np.arange(track_image.shape[2]),
+        indexing='ij'
+    )
+    data[:,1] = data[:,1] - yrange[0]
+    data[:,2] = data[:,2] - xrange[0]
+    for d in data:
+        track_image[int(d[0])] = np.exp(-((yy-d[1])**2 + (xx-d[2])**2))
+    return [
+        (track_image, {"name": "Simple Tracks (2D) Images"}, "image"),
+        (data, {"name": "Simple Tracks (2D)","face_color":"red"}, "points"),
+    ]
+
+def _cell_segmentation():
+    from laptrack.datasets import cell_segmentation
+    data, label = cell_segmentation()
+    return [
+        (data, {"name": "C2C12 Cells (2D)"}, "image"),
+        (label, {"name": "C2C12 Cells (2D) Labels"}, "labels"),
+    ]
+
+@napari_hook_implementation
+def napari_provide_sample_data():
+    from laptrack.datasets import bright_brownian_particles, \
+        mouse_epidermis
+    
+    return {
+        "Simple Tracks (2D)": _simple_tracks,
+        "Bright Brownian Particles (2D)": \
+            lambda : [(bright_brownian_particles(), 
+                       {"name": "Bright Brownian Particles (2D)"})],
+        "C2C12 Cells (2D)": _cell_segmentation,
+        "Mouse Epidermis (2D)": \
+            lambda : [(mouse_epidermis(), 
+                       {"name": "Mouse Epidermis (2D)"},
+                       "labels")],
+
+    }
