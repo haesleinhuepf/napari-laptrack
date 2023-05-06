@@ -134,17 +134,28 @@ def _cell_segmentation():
     ]
 
 
+def _bright_brownian_particles():
+    from laptrack.datasets import bright_brownian_particles
+
+    return [(bright_brownian_particles(), {"name": "Bright Brownian Particles (2D)"})]
+
+
+def _mouse_epidermis():
+    from laptrack.datasets import mouse_epidermis
+
+    [(mouse_epidermis(), {"name": "Mouse Epidermis (2D)"}, "labels")]
+
+
+_DATA = {
+    "Simple Tracks (2D)": _simple_tracks,
+    "Bright Brownian Particles (2D)": _bright_brownian_particles,
+    "C2C12 Cells (2D)": _cell_segmentation,
+    "Mouse Epidermis (2D)": _mouse_epidermis,
+}
+
+# globals().update({k: v['data'] for k, v in _DATA.items()})
+
+
 @napari_hook_implementation
 def napari_provide_sample_data():
-    from laptrack.datasets import bright_brownian_particles, mouse_epidermis
-
-    return {
-        "Simple Tracks (2D)": _simple_tracks,
-        "Bright Brownian Particles (2D)": lambda: [
-            (bright_brownian_particles(), {"name": "Bright Brownian Particles (2D)"})
-        ],
-        "C2C12 Cells (2D)": _cell_segmentation,
-        "Mouse Epidermis (2D)": lambda: [
-            (mouse_epidermis(), {"name": "Mouse Epidermis (2D)"}, "labels")
-        ],
-    }
+    return _DATA
