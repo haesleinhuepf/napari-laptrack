@@ -73,8 +73,8 @@ def track_labels_centroid_based(
         spots_df = labels_layer_4d.features
 
     # LAP-based tracking
-    lt = LapTrack(track_cost_cutoff=5**2)
-    track_df, _, _ = lt.predict_dataframe(
+    lt = LapTrack(track_cost_cutoff=5**2, splitting_cost_cutoff=5**2)
+    track_df, split_df, merge_df = lt.predict_dataframe(
         spots_df, ["centroid-0", "centroid-1", "centroid-2"], only_coordinate_cols=False
     )
     track_df = track_df.reset_index()
@@ -83,8 +83,18 @@ def track_labels_centroid_based(
     labels_layer_4d.features = track_df
 
     # show result as tracks
+    split_merge_graph={}
+    if not split_df.empty:
+        split_merge_graph.update({
+            row["child_track_id"]: [row["parent_track_id"]] for _, row in split_df.iterrows()
+        })
+    if not merge_df.empty:
+        split_merge_graph.update({
+            c_id: grp["parent_track_id"].to_list() for c_id, grp in merge_df.groupby("child_track_id")
+        })
     viewer.add_tracks(
         track_df[["track_id", "frame", "centroid-2", "centroid-0", "centroid-1"]],
+        graph=split_merge_graph,
         tail_length=50,
     )
     # show result as track-id-label image
