@@ -5,7 +5,7 @@ from napari_tools_menu import register_function
 
 
 @napari_hook_implementation
-def napari_experimental_provide_function():
+def napari_experimental_provide_function():  # noqa: D103
     return [track_labels_centroid_based]
 
 
@@ -16,7 +16,7 @@ def track_labels_centroid_based(
     viewer: "napari.Viewer",
 ):
     """
-    Tracking particles in a 4D label image, based on the LapTrack library. Inspired by [1]
+    Tracking particles in a 4D label image, based on the LapTrack library. Inspired by [1].
 
     See Also
     --------

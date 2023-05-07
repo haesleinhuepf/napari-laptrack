@@ -19,9 +19,11 @@ Install both using mamba-forge ([download here](https://github.com/conda-forge/m
 ```
 mamba create --name napari-laptrack-env -c conda-forge python=3.9 devbio-napari
 ```
+
 ```
 mamba activate napari-laptrack-env
 ```
+
 ```
 pip install napari-laptrack
 ```
@@ -111,6 +113,7 @@ Distributed under the terms of the [BSD-3] license,
 
 If you encounter any problems, please [file an issue] along with a detailed description.
 
+<!-- prettier-ignore-start -->
 [napari]: https://github.com/napari/napari
 [Cookiecutter]: https://github.com/audreyr/cookiecutter
 [@napari]: https://github.com/napari
@@ -126,3 +129,4 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 [tox]: https://tox.readthedocs.io/en/latest/
 [pip]: https://pypi.org/project/pip/
 [PyPI]: https://pypi.org/
+<!-- prettier-ignore-end -->
