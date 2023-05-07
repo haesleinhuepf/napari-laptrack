@@ -103,3 +103,79 @@ def track_labels_centroid_based(
     viewer.add_labels(track_id_image)
     # show result as table
     nsr.add_table(labels_layer_4d, viewer)
+
+
+def _simple_tracks():
+    from laptrack.datasets import simple_tracks
+    import numpy as np
+
+    data = simple_tracks()[["frame", "position_y", "position_x"]].values
+
+    yrange = (150, 250)
+    xrange = (150, 250)
+
+    track_image = np.zeros(
+        (
+            int(data[:, 0].max()) + 1,
+            yrange[1] - yrange[0],
+            xrange[1] - xrange[0],
+        )
+    )
+    yy, xx = np.meshgrid(
+        np.arange(track_image.shape[1]), np.arange(track_image.shape[2]), indexing="ij"
+    )
+    data[:, 1] = data[:, 1] - yrange[0]
+    data[:, 2] = data[:, 2] - xrange[0]
+    for d in data:
+        track_image[int(d[0])] = np.exp(-((yy - d[1]) ** 2 + (xx - d[2]) ** 2))
+    return [
+        (track_image, {"name": "Simple Tracks (2D) Images"}, "image"),
+        (data, {"name": "Simple Tracks (2D)", "face_color": "red"}, "points"),
+    ]
+
+
+def _cell_segmentation():
+    from laptrack.datasets import cell_segmentation
+
+    data, label = cell_segmentation()
+    return [
+        (data, {"name": "Cell Segmentation (2D)"}, "image"),
+        (label, {"name": "Cell Segmentation (2D) Labels"}, "labels"),
+    ]
+
+
+def _bright_brownian_particles():
+    from laptrack.datasets import bright_brownian_particles
+
+    return [(bright_brownian_particles(), {"name": "Bright Brownian Particles (2D)"})]
+
+
+def _mouse_epidermis():
+    from laptrack.datasets import mouse_epidermis
+
+    return [(mouse_epidermis(), {"name": "Mouse Epidermis (2D)"}, "labels")]
+
+
+_DATA = {
+    "simple_tracks": {"data": _simple_tracks, "display_name": "Simple Tracks (2D)"},
+    "bright_brownian_particles": {
+        "data": _bright_brownian_particles,
+        "display_name": "Bright Brownian Particles (2D)",
+    },
+    "cell_segmentation": {
+        "data": _cell_segmentation,
+        "display_name": "Cell Segmentation (2D)",
+    },
+    "mouse_epidermis": {
+        "data": _mouse_epidermis,
+        "display_name": "Mouse Epidermis (2D)",
+    },
+}
+
+# May be useful in npe2 migration later
+# globals().update({k: v['data'] for k, v in _DATA.items()})
+
+
+@napari_hook_implementation
+def napari_provide_sample_data():
+    return _DATA
