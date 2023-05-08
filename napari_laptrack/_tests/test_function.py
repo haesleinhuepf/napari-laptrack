@@ -9,7 +9,6 @@ import pytest
 
 PLUGIN_NAME = "napari_laptrack"
 
-@pytest.mark.skip(reason="https://github.com/napari/napari/issues/5810")
 def test_sample_data(make_napari_viewer: Callable[..., napari.Viewer]):
-    viewer = make_napari_viewer()
+    viewer = make_napari_viewer(block_plugin_discovery=False)
     viewer.open_sample(PLUGIN_NAME, "simple_tracks")
