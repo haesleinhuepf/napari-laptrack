@@ -153,37 +153,17 @@ def track_labels_overlap_based(
         labels_name = labels_layer_4d.name
         viewer.add_image(image, name=labels_name)
 
-    ## Compute overlap between labels in consecutive frames and store results in a dataframe
-    # lo = LabelOverlap(labels)
-    # records_keys = ('frame', 'label1', 'label2', 'overlap', 'iou', 'ratio1', 'ratio2')
-    # overlap_records = []
-    # if __name__ == '__main__':
-    #     for f in np.arange(labels.shape[0] - 1):
-    #         l1s = np.unique(labels[f])
-    #         l1s = l1s[l1s != 0]
-    #         l2s = np.unique(labels[f + 1])
-    #         l2s = l2s[l2s != 0]
-    #         calculate_overlap_partial = partial(calculate_overlap, lo, frame=f)
-    #         overlap_results = []
-    #         inputs = [(l1, l2) for l1, l2 in product(l1s, l2s)]
-    #         with mp.Pool(processes=mp.cpu_count()) as pool:
-    #             overlap_results = pool.map(calculate_overlap_partial, inputs, chunksize=int(len(inputs) / mp.cpu_count()))
-            
-    #         overlap_records += [dict(zip(records_keys, overlap_result)) for overlap_result in overlap_results]
-    #         print(f'Processed overlap of frames {f} and {f + 1}')
-
-    #     overlap_df = pd.DataFrame.from_records(overlap_records)
-    #     overlap_df = overlap_df[overlap_df['overlap'] > 0]
-    #     overlap_df = overlap_df.set_index(['frame', 'label1', 'label2']).copy()
-
     # Compute overlap between labels in consecutive frames and store results in a dataframe
     overlap_records = []
     for f in np.arange(labels.shape[0] - 1):
+
+        # Get unique labels in consecutive frames
         unique_labels1 = np.unique(labels[f])
         unique_labels2 = np.unique(labels[f + 1])
         print(f'Computing overlap of frame {f} and {f + 1}')
         overlap_records += calculate_overlap(labels[f].ravel(), labels[f + 1].ravel(), unique_labels1, unique_labels2, f)
     
+    # Convert list of dictionaries to dataframe
     overlap_df = pd.DataFrame.from_records(overlap_records)
     overlap_df = overlap_df.set_index(['frame', 'label1', 'label2']).copy()
 
@@ -227,15 +207,14 @@ def track_labels_overlap_based(
             frame = int(row["frame"])
             label_obj = int(row["label"])
             new_labels[frame][labels[frame] == label_obj] = tree_id + 1
+    # Add new labels to viewer        
     viewer.add_labels(new_labels, name=labels_name + "_tracked")
 
+    # Show tracks in napari
     viewer.add_tracks(
     track_df[["track_id", "frame", "centroid-2", "centroid-0", "centroid-1"]].values,
-    graph={
-        row["child_track_id"]: row["parent_track_id"] for _, row in split_df.iterrows()
-    },
-    tail_length=1,
-    )
+    graph={row["child_track_id"]: row["parent_track_id"] for _, row in split_df.iterrows()},
+    tail_length=1)
 
     # show result as track-id-label image
     #track_id_image = nsr.map_measurements_on_labels(labels_layer_4d, column="track_id")
@@ -244,27 +223,45 @@ def track_labels_overlap_based(
     # show result as table
     #nsr.add_table(labels_layer_4d, viewer)
 
-# def calculate_overlap(label_overlap, label1, label2, frame):
-#     overlap, iou, ratio1, ratio2 = label_overlap.calc_overlap(frame, label1, frame + 1, label2)
-#     return np.asarray([frame, label1, label2, overlap, iou, ratio1, ratio2])
 
-def calculate_overlap(label1, label2, unique_labels1, unique_labels2, frame):
+def calculate_overlap(label1:np.array, label2:np.array, unique_labels1:np.array, unique_labels2:np.array, frame:int) ->list:
+    """ Compute overlap, IoU and specific ratios between labels in two consecutive timeframes.
+
+        Parameters:
+        label1 : np.array
+            Labels in timeframe f in the form of a 1D array.
+        label2 : np.array
+            Labels in timeframe f+1 in the form of a 1D array.
+        unique_labels1 : np.array
+            Unique labels in timeframe f in the form of a 1D array.
+        unique_labels2 : np.array
+            Unique labels in timeframe f+1 in the form of a 1D array.
+        frame : int
+            Specific index in the timelapse of images.
+    """
     overlap_records = []
     keys = ("frame", "label1", "label2", "overlap", "iou", "ratio_1", "ratio_2")
+
+    # Compute matrix consisting of the overlap between labels in two consecutive timeframes
     overlap_matrix = confusion_matrix(label1, label2)
-    unique_indices = np.union1d(unique_labels1, unique_labels2)
-    _, _, unique_labels1_indices = np.intersect1d(unique_labels1, unique_indices, return_indices=True)
-    _, _, unique_labels2_indices = np.intersect1d(unique_labels2, unique_indices, return_indices=True)
+    unique_labels_combined = np.union1d(unique_labels1, unique_labels2)
+
+    # Compute indices of unique labels of specific timeframe in the combined array
+    _, _, unique_labels1_indices = np.intersect1d(unique_labels1, unique_labels_combined, return_indices=True)
+    _, _, unique_labels2_indices = np.intersect1d(unique_labels2, unique_labels_combined, return_indices=True)
+
     for index_1, index_2 in product(unique_labels1_indices, unique_labels2_indices):
+        # Skip background label
         if index_1 == 0 or index_2 == 0:
             continue
+        # Skip labels that do not overlap
         if overlap_matrix[index_1, index_2] == 0:
             continue
         overlap = overlap_matrix[index_1, index_2]
         b1_sum = np.sum(overlap_matrix[index_1, :])
         b2_sum = np.sum(overlap_matrix[:, index_2])
         union = b1_sum + b2_sum - overlap
-        overlap_records.append(tuple([frame, unique_indices[index_1], unique_indices[index_2], overlap, overlap / union, overlap / b1_sum, overlap / b2_sum]))
+        overlap_records.append(tuple([frame, unique_labels_combined[index_1], unique_labels_combined[index_2], overlap, overlap / union, overlap / b1_sum, overlap / b2_sum]))
     overlap_records = [dict(zip(keys, values)) for values in overlap_records]
     return overlap_records
 
