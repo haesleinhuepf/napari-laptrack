@@ -61,6 +61,9 @@ def track_labels_centroid_based(
         labels = labels_layer_4d.data
         labels_name = labels_layer_4d.name
         viewer.add_image(image, name=labels_name)
+    else:
+        labels_name = labels_layer.name
+        
 
     # determine centroids
     if (
@@ -152,6 +155,8 @@ def track_labels_overlap_based(
         labels = labels_layer_4d.data
         labels_name = labels_layer_4d.name
         viewer.add_image(image, name=labels_name)
+    else:
+        labels_name = labels_layer.name
 
     # Compute overlap between labels in consecutive frames and store results in a dataframe
     overlap_records = []
