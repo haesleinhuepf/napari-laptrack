@@ -155,6 +155,14 @@ def _mouse_epidermis():
 
     return [(mouse_epidermis(), {"name": "Mouse Epidermis (2D)"}, "labels")]
 
+def _HL60_3D_synthesized():
+    from laptrack.datasets import HL60_3D_synthesized
+
+    data, label = HL60_3D_synthesized()
+    return [
+        (data, {"name": "HL60 Synthesized (3D)"}, "image"),
+        (label, {"name": "HL60 Synthesized (3D) Labels"}, "labels"),
+    ]
 
 _DATA = {
     "simple_tracks": {"data": _simple_tracks, "display_name": "Simple Tracks (2D)"},
@@ -170,11 +178,14 @@ _DATA = {
         "data": _mouse_epidermis,
         "display_name": "Mouse Epidermis (2D)",
     },
+    "HL60_3D_synthesized": {
+        "data": _HL60_3D_synthesized,
+        "display_name": "HL60 Synthesized (3D)",
+    },
 }
 
 # May be useful in npe2 migration later
 # globals().update({k: v['data'] for k, v in _DATA.items()})
-
 
 @napari_hook_implementation
 def napari_provide_sample_data():
