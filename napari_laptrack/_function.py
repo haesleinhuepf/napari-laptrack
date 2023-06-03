@@ -12,9 +12,9 @@ def _check_and_convert_layers_to_4d(layer,viewer):
     import napari_time_slicer as nts
     # Deal with input data of various formats and bring both in [T,Z,Y,X] shape/format, maybe with Z=1
     if len(layer.data.shape) == 3:
-        return nts._function.convert_to_2d_timelapse(layer, viewer)
+        return nts._function.convert_to_2d_timelapse(layer, viewer), True
     elif len(layer.data.shape) == 4:
-        return layer
+        return layer, False
     else:
         raise ValueError(f"image shape {layer.data.shape} not supported")
 
@@ -36,13 +36,19 @@ def track_labels_centroid_based(
     import napari_skimage_regionprops as nsr
     import numpy as np
 
-    image_layer_4d = _check_and_convert_layers_to_4d(image_layer, viewer)
-    viewer.add_layer(image_layer_4d)
-    image = image_layer_4d.data
+    image_layer_4d, updated = _check_and_convert_layers_to_4d(image_layer, viewer)
+    if updated:
+        viewer.add_layer(image_layer_4d)
+        image = image_layer_4d.data
+    else:
+        image = image_layer.data
 
-    labels_layer_4d = _check_and_convert_layers_to_4d(labels_layer, viewer)
-    viewer.add_layer(labels_layer_4d)
-    labels = labels_layer_4d.data
+    labels_layer_4d, updated = _check_and_convert_layers_to_4d(labels_layer, viewer)
+    if updated:
+        viewer.add_layer(labels_layer_4d)
+        labels = labels_layer_4d.data
+    else:
+        labels = labels_layer.data
 
     # determine centroids
     if (
