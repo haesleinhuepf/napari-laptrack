@@ -11,9 +11,7 @@ def napari_experimental_provide_function():  # noqa: D103
 def _check_and_convert_layers_to_4d(layer,viewer):
     import napari_time_slicer as nts
     # Deal with input data of various formats and bring both in [T,Z,Y,X] shape/format, maybe with Z=1
-    if len(layer.data.shape) == 2:
-        return nts._function.convert_to_stack4d(layer, viewer)
-    elif len(layer.data.shape) == 3:
+    if len(layer.data.shape) == 3:
         return nts._function.convert_to_2d_timelapse(layer, viewer)
     elif len(layer.data.shape) == 4:
         return layer
@@ -22,8 +20,8 @@ def _check_and_convert_layers_to_4d(layer,viewer):
 
 @register_function(menu="Tracking > Track labeled objects (centroid-based, LapTrack)")
 def track_labels_centroid_based(
-    image_layer_4d: "napari.layers.Image",
-    labels_layer_4d: "napari.layers.Labels",
+    image_layer: "napari.layers.Image",
+    labels_layer: "napari.layers.Labels",
     viewer: "napari.Viewer",
 ):
     """
@@ -38,14 +36,12 @@ def track_labels_centroid_based(
     import napari_skimage_regionprops as nsr
     import numpy as np
 
-    image_layer_4d = _check_and_convert_layers_to_4d(image_layer_4d, viewer)
-    image_name = image_layer_4d.name
-    viewer.add_image(image_layer_4d.data, name=image_name)
+    image_layer_4d = _check_and_convert_layers_to_4d(image_layer, viewer)
+    viewer.add_layer(image_layer_4d)
     image = image_layer_4d.data
 
-    labels_layer_4d = _check_and_convert_layers_to_4d(image_layer_4d, viewer)
-    labels_name = labels_layer_4d.name
-    viewer.add_labels(labels_layer_4d.data, name=labels_name)
+    labels_layer_4d = _check_and_convert_layers_to_4d(labels_layer, viewer)
+    viewer.add_layer(labels_layer_4d)
     labels = labels_layer_4d.data
 
     # determine centroids
