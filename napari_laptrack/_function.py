@@ -8,32 +8,22 @@ from napari_tools_menu import register_function
 def napari_experimental_provide_function():  # noqa: D103
     return [track_labels_centroid_based]
 
-def _check_and_convert_layers_to_4d(image_layer,labels_layer,viewer):
+def _check_and_convert_layers_to_4d(layer,viewer):
     import napari_time_slicer as nts
-    image = image_layer.data
-    labels = labels_layer.data
     # Deal with input data of various formats and bring both in [T,Z,Y,X] shape/format, maybe with Z=1
-    assert image.shape == labels.shape, "Image and labels must have the same shape."    
-    if len(image) == 2:
-        print("Image data seems 2D/on-the-fly-processed, converting to 3D+t...")
-        image_layer_4d = nts._function.convert_to_stack4d(image_layer, viewer)
-        labels_layer_4d = nts._function.convert_to_stack4d(labels_layer, viewer)
-    elif len(image_layer.data.shape) == 3:
-        print("Image data seems 2D+t, converting to 3D+t...")
-        image_layer_4d = nts._function.convert_to_2d_timelapse(image_layer, viewer)
-        labels_layer_4d = nts._function.convert_to_2d_timelapse(labels_layer, viewer)
-    image_name = image_layer_4d.name
-    viewer.add_image(image, name=image_name)
-    labels_name = labels_layer_4d.name
-    viewer.add_labels(labels, name=labels_name)
-
-    return image_layer_4d, labels_layer_4d
-
+    if len(layer.data.shape) == 2:
+        return nts._function.convert_to_stack4d(layer, viewer)
+    elif len(layer.data.shape) == 3:
+        return nts._function.convert_to_2d_timelapse(layer, viewer)
+    elif len(layer.data.shape) == 4:
+        return layer
+    else:
+        raise ValueError(f"image shape {layer.data.shape} not supported")
 
 @register_function(menu="Tracking > Track labeled objects (centroid-based, LapTrack)")
 def track_labels_centroid_based(
-    image_layer: "napari.layers.Image",
-    labels_layer: "napari.layers.Labels",
+    image_layer_4d: "napari.layers.Image",
+    labels_layer_4d: "napari.layers.Labels",
     viewer: "napari.Viewer",
 ):
     """
@@ -48,8 +38,14 @@ def track_labels_centroid_based(
     import napari_skimage_regionprops as nsr
     import numpy as np
 
-    image_layer_4d, labels_layer_4d = _check_and_convert_layers_to_4d(image_layer,labels_layer,viewer)
+    image_layer_4d = _check_and_convert_layers_to_4d(image_layer_4d, viewer)
+    image_name = image_layer_4d.name
+    viewer.add_image(image_layer_4d.data, name=image_name)
     image = image_layer_4d.data
+
+    labels_layer_4d = _check_and_convert_layers_to_4d(image_layer_4d, viewer)
+    labels_name = labels_layer_4d.name
+    viewer.add_labels(labels_layer_4d.data, name=labels_name)
     labels = labels_layer_4d.data
 
     # determine centroids
@@ -63,7 +59,8 @@ def track_labels_centroid_based(
         measurements = nsr.regionprops_table_all_frames(image, labels, position=True)
         spots_df = pd.DataFrame(measurements)
         if "centroid-2" not in spots_df.keys():
-            spots_df["centroid-2"] = 0
+            spots_df.rename(columns={"centroid-0": "centroid-1", "centroid-1": "centroid-2"}, inplace=True)
+            spots_df["centroid-0"] = 0
     else:
         spots_df = labels_layer_4d.features
 
@@ -73,6 +70,14 @@ def track_labels_centroid_based(
         spots_df, ["centroid-0", "centroid-1", "centroid-2"], only_coordinate_cols=False
     )
     track_df = track_df.reset_index()
+    track_df["track_id"] = track_df["track_id"]+1
+    track_df["tree_id"] = track_df["tree_id"]+1
+    if not split_df.empty:
+        split_df["parent_track_id"] = split_df["parent_track_id"]+1
+        split_df["child_track_id"] = split_df["child_track_id"]+1
+    if not merge_df.empty:
+        merge_df["parent_track_id"] = merge_df["parent_track_id"]+1
+        merge_df["child_track_id"] = merge_df["child_track_id"]+1
 
     # store results
     labels_layer_4d.features = track_df
