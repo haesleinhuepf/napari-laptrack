@@ -2,6 +2,6 @@ napari-plugin-engine>=0.1.4
 numpy
 napari-tools-menu
 napari-time-slicer
-laptrack>=0.13.0
+laptrack>=0.14.0
 napari_skimage_regionprops>=0.9.0
 pandas

@@ -40,6 +40,7 @@ def track_labels_centroid_based(
     if updated:
         viewer.add_layer(image_layer_4d)
         image = image_layer_4d.data
+        image_layer.visible = False
     else:
         image = image_layer.data
 
@@ -47,8 +48,10 @@ def track_labels_centroid_based(
     if updated:
         viewer.add_layer(labels_layer_4d)
         labels = labels_layer_4d.data
+        labels_layer_4d.visible = False
     else:
         labels = labels_layer.data
+    labels_layer.visible = False
 
     # determine centroids
     if (
@@ -69,17 +72,12 @@ def track_labels_centroid_based(
     # LAP-based tracking
     lt = LapTrack(track_cost_cutoff=5**2, splitting_cost_cutoff=5**2)
     track_df, split_df, merge_df = lt.predict_dataframe(
-        spots_df, ["centroid-0", "centroid-1", "centroid-2"], only_coordinate_cols=False
+        spots_df, 
+        ["centroid-0", "centroid-1", "centroid-2"], 
+        only_coordinate_cols=False, 
+        index_offset=1
     )
     track_df = track_df.reset_index()
-    track_df["track_id"] = track_df["track_id"]+1
-    track_df["tree_id"] = track_df["tree_id"]+1
-    if not split_df.empty:
-        split_df["parent_track_id"] = split_df["parent_track_id"]+1
-        split_df["child_track_id"] = split_df["child_track_id"]+1
-    if not merge_df.empty:
-        merge_df["parent_track_id"] = merge_df["parent_track_id"]+1
-        merge_df["child_track_id"] = merge_df["child_track_id"]+1
 
     # store results
     labels_layer_4d.features = track_df
@@ -89,12 +87,13 @@ def track_labels_centroid_based(
         track_df[["track_id", "frame", "centroid-0", "centroid-1", "centroid-2"]],
         graph=split_merge_graph,
         tail_length=50,
+        name = "LapTrack (centroid-based) " + image_layer.name,
     )
 
     # show result as track-id-label image
     track_id_image = nsr.map_measurements_on_labels(labels_layer_4d, column="track_id")
     track_id_image = track_id_image.astype(np.uint32)
-    viewer.add_labels(track_id_image)
+    viewer.add_labels(track_id_image, name = "LapTrack (centroid-based) labels " + labels_layer.name)
     # show result as table
     nsr.add_table(labels_layer_4d, viewer)
 
